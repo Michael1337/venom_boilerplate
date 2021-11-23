@@ -28,8 +28,10 @@ FROM initial-stage AS build-stage
 
 ARG NODE_ENV
 ARG BASE_URL
+ARG API_URL
 ENV NODE_ENV=${NODE_ENV}
 ENV BASE_URL=${BASE_URL}
+ENV API_URL=${API_URL}
 
 # Add configuration files
 COPY image-files/ /
@@ -52,6 +54,6 @@ COPY --from=build-stage /srv/dist /srv
 
 EXPOSE 80
 
-ENTRYPOINT [ "docker-entrypoint.sh" ]
+ENTRYPOINT [ "./docker-entrypoint.sh" ]
 
 CMD ["nginx", "-g", "daemon off;"]

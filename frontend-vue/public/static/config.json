@@ -1,5 +1,5 @@
 {
-  "apiUrl": "http://localhost/api",
+  "apiUrl": "api.michaelweber-server.de",
   "format": {
     "dateTime": "YYYY-MM-DD HH:MM:SS"
   }

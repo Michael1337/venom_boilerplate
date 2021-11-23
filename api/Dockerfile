@@ -47,6 +47,6 @@ COPY --from=build-stage /srv /srv
 
 EXPOSE 3000
 
-ENTRYPOINT [ "docker-entrypoint.sh" ]
+ENTRYPOINT [ "./docker-entrypoint.sh" ]
 
 CMD [ "node", "dist/server.js"]
