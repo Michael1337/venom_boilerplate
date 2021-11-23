@@ -1,18 +1,25 @@
-const { validationResult } = require('express-validator');
+const {validationResult} = require('express-validator');
 const authModel = require('../models/authModel');
 const userModel = require('../models/userModel');
-const { logger } = require('../helpers/logger');
+const {logger} = require('../helpers/logger');
 const {
   handleValidationError,
   handleCustomValidationError,
   handleSuccess,
   handleRedirect
 } = require('../helpers/response');
-const { getIPAddress } = require('../helpers/util');
+const {getIPAddress} = require('../helpers/util');
 
-const moduleLogger = logger.child({ module: 'authController' });
+const moduleLogger = logger.child({module: 'authController'});
 
 const login = async (req, res) => {
+  console.log("Test")
+  console.log("Test")
+  console.log("Test")
+  console.log("Test")
+  console.log("Test")
+  console.log("Test")
+  console.log("Test")
   const validationResponse = handleValidationError(req, res);
   if (validationResponse !== null) {
     return validationResponse;
@@ -30,7 +37,7 @@ const login = async (req, res) => {
 
     return handleSuccess(res, 'You are successfully logged in.', result);
   } catch (e) {
-    moduleLogger.error({ e }, 'Login failed');
+    moduleLogger.error({e}, 'Login failed');
     return handleCustomValidationError(res, [
       {
         value: '',
@@ -65,12 +72,12 @@ const register = async (req, res) => {
         enabled: userModel.userEnabled.active,
         status: userModel.userStatus.pending
       },
-      { apiURL }
+      {apiURL}
     );
 
     return handleSuccess(res, 'You are successfully registered.', result);
   } catch (e) {
-    moduleLogger.error({ e }, 'Register failed');
+    moduleLogger.error({e}, 'Register failed');
     return handleCustomValidationError(res, [
       {
         value: '',
@@ -98,7 +105,7 @@ const registerConfirm = async (req, res) => {
 
     return handleRedirect(res, 302, `${appURL}/login?messageKey=registerConfirmSuccess`);
   } catch (e) {
-    moduleLogger.error({ e }, 'Email confirmation failed');
+    moduleLogger.error({e}, 'Email confirmation failed');
     return handleRedirect(res, 302, `${appURL}/login?messageKey=registerConfirmFailed`);
   }
 };
@@ -116,7 +123,7 @@ const passwordResetRequest = async (req, res) => {
       {
         email: req.body.email
       },
-      { apiURL }
+      {apiURL}
     );
 
     return handleSuccess(
@@ -125,7 +132,7 @@ const passwordResetRequest = async (req, res) => {
       result
     );
   } catch (e) {
-    moduleLogger.error({ e }, 'Password reset request failed');
+    moduleLogger.error({e}, 'Password reset request failed');
     return handleCustomValidationError(res, [
       {
         value: '',
@@ -167,7 +174,7 @@ const passwordReset = async (req, res) => {
 
     return handleSuccess(res, 'Your password has been updated. Please login with your new password.', result);
   } catch (e) {
-    moduleLogger.error({ e }, 'Password reset failed');
+    moduleLogger.error({e}, 'Password reset failed');
     return handleCustomValidationError(res, [
       {
         value: '',
