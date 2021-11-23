@@ -1,15 +1,17 @@
-import axios from 'axios';
-import * as vueConfig from '../../vue.config';
-
 class ConfigService {
   constructor() {
     this.config = {};
   }
 
   loadConfig() {
-    axios.get(`${vueConfig.publicPath}static/config.json`).then(response => {
-      this.config = response.data;
-    });
+    // axios.get(`${vueConfig.publicPath}static/config.json`).then(response => {
+    this.config = {
+      "apiUrl": process.env.VUE_APP_API_URL,
+      "format": {
+        "dateTime": "YYYY-MM-DD HH:MM:SS"
+      }
+    };
+    // });
   }
 
   set(key, value) {
