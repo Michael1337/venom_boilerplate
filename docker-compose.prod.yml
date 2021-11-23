@@ -21,7 +21,7 @@ services:
     container_name: migration_venom
     build:
       context: ./api
-      target: producation-stage
+      target: production-stage
     depends_on:
       - mysql
     networks:
