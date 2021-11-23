@@ -21,7 +21,6 @@ services:
     container_name: migration_venom
     build:
       context: ./api
-      target: production-stage
     depends_on:
       - mysql
     networks:
@@ -42,7 +41,6 @@ services:
     container_name: api_venom
     build:
       context: ./api
-      target: production-stage
     depends_on:
       - mysql
       - migration
@@ -76,7 +74,6 @@ services:
     container_name: frontend-nuxt_venom
     build:
       context: ./frontend-nuxt
-      target: production-stage
       args:
         BASE_URL: /
     depends_on:
@@ -91,7 +88,6 @@ services:
     container_name: frontend-vue_venom
     build:
       context: ./frontend-vue
-      target: production-stage
       args:
         NODE_ENV: production
         BASE_URL: /
@@ -107,7 +103,6 @@ services:
     container_name: backend_venom
     build:
       context: ./backend
-      target: production-stage
       args:
         NODE_ENV: production
         BASE_URL: /
