@@ -1,0 +1,133 @@
+version: "3.3"
+
+services:
+  mysql:
+    container_name: mysql_venom
+    image: mysql:8.0
+    networks:
+      - internal_venom
+    ports:
+      - 3307:3306
+    volumes:
+      - ./mysql/conf.d:/etc/mysql/conf.d
+      - mysql_data_venom:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=boilerplate
+      - TZ=Australia/Melbourne
+
+  migration:
+    container_name: migration_venom
+    build:
+      context: ./api
+      target: producation-stage
+    depends_on:
+      - mysql
+    networks:
+      - internal_venom
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=boilerplate
+      - DB_CONNECTION_LIMIT=10
+      - DB_DEBUG=true
+      - TZ=Australia/Melbourne
+    command:
+      - /usr/local/bin/migration.sh
+
+  api:
+    container_name: api_venom
+    build:
+      context: ./api
+      target: production-stage
+    depends_on:
+      - mysql
+      - migration
+    networks:
+      - internal_venom
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=boilerplate
+      - DB_CONNECTION_LIMIT=10
+      - DB_DEBUG=true
+      - JWT_SECRET_KEY=vsKpsTgstlhmg8yIA82d
+      - JWT_EXPIRES_IN=1w
+      - BCRYPT_SALTING_ROUND=10
+      - API_URL=http://$SERVICE_DOMAIN/api
+      - BACKEND_URL=http://$SERVICE_DOMAIN/backend
+      - FRONTEND_URL=http://$SERVICE_DOMAIN/frontend-nuxt
+      - EMAIL_FROM_ADDRESS=support@$SERVICE_DOMAIN
+      - EMAIL_FROM_NAME=Support
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+      - SMTP_SECURE=false
+      - SMTP_AUTH_USER=
+      - SMTP_AUTH_PASS=
+      - SMTP_DEBUG=true
+      - SMTP_LOGGER=true
+      - TZ=Australia/Melbourne
+
+  frontend-nuxt:
+    container_name: frontend-nuxt_venom
+    build:
+      context: ./frontend-nuxt
+      target: production-stage
+      args:
+        BASE_URL: /
+    depends_on:
+      - mysql
+    networks:
+      - internal_venom
+    environment:
+      - BASE_URL=/
+      - API_URL=http://$SERVICE_DOMAIN/api
+
+  frontend-vue:
+    container_name: frontend-vue_venom
+    build:
+      context: ./frontend-vue
+      target: production-stage
+      args:
+        NODE_ENV: production
+        BASE_URL: /
+    depends_on:
+      - mysql
+    networks:
+      - internal_venom
+    environment:
+      - BASE_URL=/
+      - API_URL=http://$SERVICE_DOMAIN/api
+
+  backend:
+    container_name: backend_venom
+    build:
+      context: ./backend
+      target: production-stage
+      args:
+        NODE_ENV: production
+        BASE_URL: /
+    depends_on:
+      - mysql
+    networks:
+      - internal_venom
+    environment:
+      - BASE_URL=/
+      - API_URL=http://$SERVICE_DOMAIN/api
+
+  mailhog:
+    container_name: mailhog_venom
+    image: mailhog/mailhog
+    networks:
+      - internal_venom
+
+networks:
+  internal_venom:
+    driver: bridge
+
+volumes:
+  mysql_data_venom:

@@ -1,0 +1,155 @@
+version: "3.7"
+
+services:
+  nginx:
+    container_name: nginx_custom
+    image: nginx:stable
+    depends_on:
+      - api
+      - frontend-nuxt
+      - frontend-vue
+      - mysql
+    networks:
+      - internal_custom
+    volumes:
+      - ./nginx/image-files/etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 82:80
+
+  mysql:
+    container_name: mysql_custom
+    image: mysql:8.0
+    networks:
+      - internal_custom
+    ports:
+      - 3308:3306
+    volumes:
+      - ./mysql/conf.d:/etc/mysql/conf.d
+      - mysql_data_custom:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=boilerplate
+      - TZ=Australia/Melbourne
+
+  migration:
+    container_name: migration_custom
+    build:
+      context: ./api
+      target: dev-stage
+    depends_on:
+      - mysql
+    networks:
+      - internal_custom
+    # volumes:
+    #   - ./api:/srv
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=boilerplate
+      - DB_CONNECTION_LIMIT=10
+      - DB_DEBUG=true
+      - TZ=Australia/Melbourne
+    command:
+      - /usr/local/bin/migration.sh
+
+  api:
+    container_name: api_custom
+    build:
+      context: ./api
+      target: dev-stage
+    depends_on:
+      - mysql
+      - migration
+    networks:
+      - internal_custom
+    # volumes:
+    #   - ./api:/srv
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=boilerplate
+      - DB_CONNECTION_LIMIT=10
+      - DB_DEBUG=true
+      - JWT_SECRET_KEY=aaGhu2foo7sheithePhai4Aef
+      - JWT_EXPIRES_IN=1w
+      - BCRYPT_SALTING_ROUND=10
+      - API_URL=http://localhost/api
+      - BACKEND_URL=http://localhost/backend
+      - FRONTEND_URL=http://localhost/frontend-nuxt
+      - EMAIL_FROM_ADDRESS=support@boilerplate.local
+      - EMAIL_FROM_NAME=Support
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+      - SMTP_SECURE=false
+      - SMTP_AUTH_USER=
+      - SMTP_AUTH_PASS=
+      - SMTP_DEBUG=true
+      - SMTP_LOGGER=true
+      - TZ=Australia/Melbourne
+
+  frontend-nuxt:
+    container_name: frontend-nuxt_custom
+    build:
+      context: ./frontend-nuxt
+      target: production-stage
+      args:
+        BASE_URL: /frontend-nuxt/
+    depends_on:
+      - api
+    networks:
+      - internal_custom
+    environment:
+      - BASE_URL=/frontend-nuxt/
+      - API_URL=http://localhost/api
+    command: npm run dev
+
+  frontend-vue:
+    container_name: frontend-vue_custom
+    build:
+      context: ./frontend-vue
+      target: production-stage
+      args:
+        NODE_ENV: production
+        BASE_URL: /frontend-vue/
+    depends_on:
+      - api
+    networks:
+      - internal_custom
+    environment:
+      - BASE_URL=/frontend-vue/
+      - API_URL=http://localhost/api
+
+  backend:
+    container_name: backend_custom
+    build:
+      context: ./backend
+      target: production-stage
+      args:
+        NODE_ENV: production
+        BASE_URL: /backend/
+    depends_on:
+      - api
+    networks:
+      - internal_custom
+    environment:
+      - BASE_URL=/backend/
+      - API_URL=http://localhost/api
+
+
+  mailhog:
+    container_name: mailhog_custom
+    image: mailhog/mailhog
+    networks:
+      - internal_custom
+
+networks:
+  internal_custom:
+    driver: bridge
+
+volumes:
+  mysql_data_custom:
