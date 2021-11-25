@@ -4,7 +4,7 @@ import configService from '@/services/configService';
 export default {
   async me() {
     return axios
-      .get(`${process.env.API_URL}/me`, {})
+      .get(`${configService.get('apiUrl')}/me`, {})
       .then(response => {
         return response.data;
       })
