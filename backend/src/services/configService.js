@@ -1,14 +1,18 @@
-import axios from 'axios';
-import * as vueConfig from '../../vue.config';
-
 class ConfigService {
   constructor() {
     this.config = {};
   }
 
   async loadConfig() {
-    const response = await axios.get(`${vueConfig.publicPath}static/config.json`);
-    this.config = response.data;
+    // const response = await axios.get(`${vueConfig.publicPath}static/config.json`);
+    this.config = {
+      "apiUrl": process.env.VUE_APP_API_URL,
+      "format": {
+        "timeZone": "Australia/Melbourne",
+        "dateTime": "YYYY-MM-DD HH:mm:ss",
+        "pickerDateTime": "yyyy-MM-dd HH:mm"
+      }
+    }
   }
 
   set(key, value) {
